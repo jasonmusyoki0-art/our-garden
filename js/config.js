@@ -22,7 +22,7 @@ LN.config = {
   // These two build your cloud password:  passwordPrefix + your digit code
   // Example:  "bloom-" + "48291573"  =>  "bloom-48291573"
   sharedEmail: "garden@ourlittleworld.app", // any email-looking text, must match README step 4
-  passwordPrefix: "bloom-291026",                // change it to anything you like (min 3 chars)
+  passwordPrefix: "bloom-",                     // change it to anything you like (min 3 chars)
 
   // Auto-lock after this many minutes of doing nothing (0 = never)
   idleLockMinutes: 5,
