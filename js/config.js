@@ -11,7 +11,7 @@ LN.config = {
 
   // How many digits your secret code has. 8 is much safer than 4!
   // (If you use the cloud mode, this must match the code you set in Supabase.)
-  codeLength: 6,
+  codeLength: 8,
 
   // ---------- CLOUD MODE (shared between your two phones) ----------
   // Leave both empty to run in "local mode" (data stays on this one device,
@@ -22,7 +22,7 @@ LN.config = {
   // These two build your cloud password:  passwordPrefix + your digit code
   // Example:  "bloom-" + "48291573"  =>  "bloom-48291573"
   sharedEmail: "garden@ourlittleworld.app", // any email-looking text, must match README step 4
-  passwordPrefix: "bloom-",                     // change it to anything you like (min 3 chars)
+  passwordPrefix: "bloom-07112026",                     // change it to anything you like (min 3 chars)
 
   // Auto-lock after this many minutes of doing nothing (0 = never)
   idleLockMinutes: 5,
