@@ -8,7 +8,7 @@ LN.views.play = {
     clearInterval(V.timer);
     const today = U.dateKey();
 
-    const REG = ["chess", "ludo", "ttt", "c4", "deep", "dice"];
+    const REG = ["chess", "ludo", "ttt", "c4", "reversi", "dots", "pong", "rps", "know", "tod", "deep", "dice"];
     const menu = () => {
       V.game = null;
       LN.presence.setGame("");
@@ -133,8 +133,8 @@ LN.views.play = {
       const prompt = G.cycle(today, LN.content.sentences, "fin");
       const mine = rows.find((r) => r.author === ctx.who), theirs = rows.find((r) => r.author !== ctx.who);
       box.innerHTML = `<div class="card"><p class="qtext">${U.esc(prompt)}</p><div class="answers">
-        <div class="ans mine"><p class="eyebrow">${U.esc(ctx.name(ctx.who))}</p>${mine ? `<p class="pre">${U.esc(mine.text)}</p>` : `<textarea rows="3" maxlength="500" placeholder="…"></textarea><button class="btn small" id="fsave">Share 💗</button>`}</div>
-        <div class="ans theirs ${mine ? "" : "locked"}"><p class="eyebrow">${U.esc(ctx.name(ctx.other))}</p>${!mine ? `<p class="muted">🔒 Finish yours to peek${theirs ? " (it's waiting!)" : ""}.</p>` : theirs ? `<p class="pre">${U.esc(theirs.text)}</p>` : `<p class="muted">Waiting… 🌷</p>`}</div></div></div>`;
+        <div class="ans mine by-${ctx.who}"><p class="eyebrow">${U.esc(ctx.name(ctx.who))}</p>${mine ? `<p class="pre">${U.esc(mine.text)}</p>` : `<textarea rows="3" maxlength="500" placeholder="…"></textarea><button class="btn small" id="fsave">Share 💗</button>`}</div>
+        <div class="ans theirs by-${ctx.other} ${mine ? "" : "locked"}"><p class="eyebrow">${U.esc(ctx.name(ctx.other))}</p>${!mine ? `<p class="muted">🔒 Finish yours to peek${theirs ? " (it's waiting!)" : ""}.</p>` : theirs ? `<p class="pre">${U.esc(theirs.text)}</p>` : `<p class="muted">Waiting… 🌷</p>`}</div></div></div>`;
       const s = U.$("#fsave", box);
       if (s) s.onclick = async () => {
         const text = U.$("textarea", box).value.trim();
@@ -175,8 +175,6 @@ LN.views.play = {
         upd();
       }
       const chg = U.$("#chg", stat); if (chg) chg.onclick = start;
-      /* chat bubble while playing with her (not against the computer) */
-      if (game !== "scores" && !opts.cpu) LN.chat.dock(root);
       try { await g.run(body, { U, db, ctx, A, G }, opts); } catch (e) { console.error(e); body.innerHTML = `<p class="empty">This game wandered off 🥀 Try again.</p>`; }
     };
 

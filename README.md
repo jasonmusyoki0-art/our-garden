@@ -8,13 +8,24 @@ A pink-and-white (with a whisper of purple) website for just the two of you:
 - 💭 **Question of the day**, answers from both of you (you must answer to peek at the other's), plus "ask your own question"
 - ✍️ **Handwritten letters**, time-capsule letters, and "Open when…" envelopes
 - 📅 **Calendar & timeline**: plan dates, write reflections, tap any day for a love note, live "time together" counter
-- 🎮 **Play tab**: Chess, Ludo, Tic-Tac-Toe (3×3, 5×5, 7×7 and Ultimate), Connect Four, Deep Talk (endless romantic questions), Love Dice, Memory Match, This or That, Finish the Sentence. Every board game has a skippable tutorial.
+- 🎮 **Play tab**: Chess, Ludo, Tic-Tac-Toe (3×3, 5×5, 7×7 and Ultimate), Connect Four, Deep Talk (endless romantic questions), Love Dice, Memory Match, This or That, Finish the Sentence, **Reversi, Dots & Boxes, live Ping-Pong, Rock Paper Scissors, How Well Do You Know Me?, Truth or Dare**. Every game has a skippable tutorial.
 - 🎙️ **Voice notes** (record, play, download; works on every phone)
-- 💬 **Chat**: its own page, plus a chat bubble inside every game you play together
+- 💬 **Chat**: its own page, plus a chat bubble on every page. Reply (drag a message right), react with emojis, ✓✓ Seen, and an online / last seen status at the top of every page
 - 🏆 **Love League**: scoreboard, head-to-head per game, record against the computer, and recent results
 - 📸 **Photos & videos**, albums, a **daily or weekly Memory Drop**, and **download** of single files or whole albums as a .zip
 
 It is a *static* website (no server to maintain) hosted free on **GitHub Pages**. Shared storage between your two phones uses a free **Supabase** project. Until you connect Supabase it runs in **Local mode** (one device only), so you can try everything immediately.
+
+---
+
+## ⬆️ Already have the site live? Update it in 4 steps
+
+1. Unzip this zip and copy everything into your project folder, choosing **Replace**. **Do NOT replace your own `js/config.js`** (it holds your Supabase keys, your 8-digit `codeLength` and your email). If you did, put your keys back.
+2. In Supabase → **SQL Editor**, run these once each (skip any you already ran): `supabase/add-chat-and-results.sql`, then `supabase/add-chat-features.sql`.
+3. In the VS Code terminal: `git add .` then `git commit -m "update"` then `git push`.
+4. Wait a minute, then refresh both phones (close the tab and reopen it).
+
+Brand new to this? Ignore the box above and start at Step 1 below.
 
 ---
 
@@ -83,7 +94,15 @@ If your site is already live, do these two things once:
 
 **Voice notes:** fixed. Notes now record in a format every phone can play. Old notes you recorded on Chrome repair themselves the next time **you** open the Voice page on that same device (a small message appears). If she still can't hear one, ask the person who recorded it to open the Voice page once.
 
-**Chat:** the 💬 tab, or the 💬 bubble while playing a game with her. Messages arrive within a few seconds; tap ✕ next to your own message to delete it.
+**Chat upgrade (replies + reactions):** run `supabase/add-chat-features.sql` once in the Supabase SQL Editor (it adds two columns). Chat still works without it, but replies and reactions won't save until you do.
+
+**Chat:** the 💬 tab, or the 💬 bubble on every page. Drag a message to the right (or tap ⋯, or hold it) to reply, react or delete. ✓ means sent, ✓✓ means she has seen it.
+
+**Live Ping-Pong** uses Supabase's free Realtime "broadcast" (nothing is stored). Jason's phone runs the game, so he opens Ping-Pong first, then she joins. If it says it can't open the live line, make sure Realtime is on (Supabase → Project Settings → Realtime) and refresh both phones.
+
+**Colors:** Jason = plum purple, Linet = pink on both phones. Change them at the top of `css/style.css` (`--him`, `--her`).
+
+ Messages arrive within a few seconds; tap ✕ next to your own message to delete it.
 
 **Love League:** every finished game is saved automatically. Win = 3 points, draw = 1 (edit `POINTS` and `TITLES` at the top of `js/games/scores.js`). See it under **Play → Love League**.
 
@@ -99,7 +118,7 @@ Open Supabase → SQL Editor and run `supabase/add-calendar.sql` once (change th
    git add .
    git commit -m "Our garden"
    git branch -M main
-   git remote add origin https://github.com/jasonmusyoki0-art/our-garden.git
+   git remote add origin https://github.com/YOURNAME/our-garden.git
    git push -u origin main
    ```
    (GitHub asks you to sign in the first time.)

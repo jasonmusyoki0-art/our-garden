@@ -30,7 +30,7 @@
     document.title = C.appTitle;
     const app = U.$("#app");
     app.innerHTML = `
-      <header class="top"><a href="#today" class="brand script">${U.esc(C.appTitle)} <span>🌸</span></a>
+      <header class="top"><a href="#today" class="brand script">${U.esc(C.appTitle)} <span>🌸</span></a><span class="pstat" id="pstat" hidden></span>
         <nav class="nav" id="nav">${NAV.slice(0, MAIN).map(([k, e, n]) => `<a href="#${k}" data-k="${k}"><span class="ni">${e}</span><span class="nl">${n}</span></a>`).join("")}
           <button class="morebtn" id="more" aria-expanded="false"><span class="ni">✨</span><span class="nl">More</span></button></nav>
         <div class="moresheet" id="moresheet" hidden>${NAV.slice(MAIN).map(([k, e, n]) => `<a href="#${k}" data-k="${k}"><span class="ni">${e}</span> ${n}</a>`).join("")}</div>
@@ -38,6 +38,17 @@
       <main id="view" tabindex="-1"></main>
       <footer class="foot">made with love 🤍</footer>`;
     U.$("#lockbtn").onclick = LN.lockNow;
+    /* online / last seen, on every page */
+    const ps = U.$("#pstat");
+    if (LN.presence.enabled()) {
+      const paintP = () => {
+        const P = LN.presence, n = U.esc(ctx.name(ctx.other));
+        ps.hidden = !P.known;
+        ps.innerHTML = P.online ? `<i class="dot on"></i>${n} online` : `<i class="dot"></i>${n} · ${U.esc(P.seenText())}`;
+      };
+      LN.presence.on(paintP); paintP();
+    }
+    LN.chat.dock();
     /* red dot on Chat when she's written something you haven't seen */
     const cl = U.$('#nav a[data-k="chat"]');
     if (cl) { const bd = document.createElement("span"); bd.className = "nbadge"; bd.hidden = true; cl.appendChild(bd); LN.chat.on((c) => { bd.hidden = !c.unread; bd.textContent = c.unread > 9 ? "9+" : c.unread; }); }
@@ -51,6 +62,7 @@
     const k = forced || (location.hash || "#today").slice(1);
     const view = LN.views[NAV.find((n) => n[0] === k) ? k : "today"];
     const key = NAV.find((n) => n[0] === k) ? k : "today";
+    document.body.classList.toggle("on-chat", key === "chat");
     U.$$("#nav a, #moresheet a").forEach((a) => a.classList.toggle("on", a.dataset.k === key));
     U.$("#more").classList.toggle("on", NAV.findIndex((n) => n[0] === key) >= MAIN);
     U.$("#moresheet").hidden = true;

@@ -11,7 +11,8 @@
   } else if (cloud) {
     sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey, {
       // sessionStorage = closing the tab forgets the login, so the code is needed again
-      auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+      auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+      realtime: { params: { eventsPerSecond: 30 } } // live games (Pong) send ~20 small messages a second
     });
   }
 
@@ -104,6 +105,36 @@
         return data;
       }
       return (await db.list(table)).slice(0, n);
+    },
+    /* a live two-way line between your two phones (used by Pong). Nothing is stored. Returns { send(obj), close(), ready() } */
+    channel(name, onMsg, onStatus) {
+      let ok = false;
+      const st = (v) => { ok = v === "SUBSCRIBED"; if (onStatus) onStatus(v); };
+      if (cloud) {
+        try {
+          const ch = sb.channel(name, { config: { broadcast: { self: false } } });
+          ch.on("broadcast", { event: "m" }, (m) => onMsg(m.payload)).subscribe(st);
+          return {
+            send: (p) => { if (ok) { try { ch.send({ type: "broadcast", event: "m", payload: p }); } catch (e) {} } },
+            close: () => { ok = false; try { sb.removeChannel(ch); } catch (e) {} },
+            ready: () => ok
+          };
+        } catch (e) { setTimeout(() => st("CHANNEL_ERROR"), 0); return { send() {}, close() {}, ready: () => false }; }
+      }
+      // this-device-only mode: lets two tabs talk, handy for trying things
+      const bc = window.BroadcastChannel ? new BroadcastChannel("ln-" + name) : null;
+      if (bc) bc.onmessage = (e) => onMsg(e.data);
+      setTimeout(() => st(bc ? "SUBSCRIBED" : "CHANNEL_ERROR"), 0);
+      return { send: (p) => bc && ok && bc.postMessage(p), close: () => { ok = false; bc && bc.close(); }, ready: () => ok };
+    },
+    /* one row by id (or null) */
+    async get(table, id) {
+      if (cloud) {
+        const { data, error } = await sb.from(table).select("*").eq("id", id).maybeSingle();
+        if (error) throw error;
+        return data;
+      }
+      return (await run(table, "readonly", (s) => s.get(id))) || null;
     },
     async add(table, row) {
       row = { id: U.uuid(), created_at: new Date().toISOString(), ...row };

@@ -131,7 +131,7 @@ LN.voice = {
     notes.forEach((n, i) => {
       const mine = n.author === ctx.who, playable = V.canPlay(n.mime);
       const c = document.createElement("article");
-      c.className = "card voicecard " + (mine ? "mine" : "theirs");
+      c.className = "card voicecard by-" + n.author + " " + (mine ? "mine" : "theirs");
       c.innerHTML = `<p class="eyebrow">${U.esc(ctx.name(n.author))} · ${U.esc(U.fmtDate(n.created_at))}</p><h3>${U.esc(n.name)}</h3>
         <audio controls preload="none" src="${U.esc(urls[i])}"></audio>
         <p class="muted vwarn" hidden></p>

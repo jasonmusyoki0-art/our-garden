@@ -2,7 +2,7 @@
    (Cloud mode only. Nothing is stored except a counter and the name of the game you're in.) */
 (function () {
   const LN = window.LN, U = LN.util;
-  const P = (LN.presence = { online: false, game: "", known: false, _cb: [] });
+  const P = (LN.presence = { online: false, game: "", known: false, lastSeen: 0, _cb: [] });
   let n = 0, seen = null, lastChange = 0, first = true, myGame = "", started = false;
 
   P.on = (cb) => { P._cb.push(cb); return () => (P._cb = P._cb.filter((x) => x !== cb)); };
@@ -20,6 +20,7 @@
     if (!P.enabled() || document.hidden) return;
     let v = null;
     try { v = await LN.db.kvGet("presence:" + LN.ctx.other); } catch (e) { return; }
+    if (v && v.t) P.lastSeen = v.t;
     const now = Date.now(), was = P.online;
     let on = false, game = "";
     if (v && !v.off) {
@@ -43,6 +44,16 @@
     setInterval(poll, 6000);
     document.addEventListener("visibilitychange", () => { if (document.hidden) beat(true); else { beat(); poll(); } });
     addEventListener("pagehide", () => beat(true));
+  };
+
+  /* "last seen today 14:02" for the header and the chat */
+  P.seenText = () => {
+    if (!P.lastSeen) return "offline";
+    const d = new Date(P.lastSeen), n = new Date(), y = new Date(Date.now() - 864e5);
+    const tm = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    if (d.toDateString() === n.toDateString()) return "last seen " + tm;
+    if (d.toDateString() === y.toDateString()) return "last seen yesterday " + tm;
+    return "last seen " + d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
   };
 
   /* A friendly sentence about the partner for the Play pages */

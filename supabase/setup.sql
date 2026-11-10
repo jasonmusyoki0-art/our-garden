@@ -47,7 +47,9 @@ create table if not exists public.events (
 create table if not exists public.messages (
   id uuid primary key,
   created_at timestamptz not null default now(),
-  author text, text text
+  author text, text text,
+  reply_to uuid,
+  reactions jsonb not null default '{}'::jsonb
 );
 
 create table if not exists public.results (

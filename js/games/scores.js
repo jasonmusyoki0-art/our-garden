@@ -5,7 +5,7 @@
   LN.games = LN.games || {};
   const POINTS = { win: 3, draw: 1 };                       // points per game against each other
   const TITLES = [[0, "Little Sprout 🌱"], [6, "Budding Challenger 🌷"], [15, "Blooming Rival 🌸"], [30, "Rose Champion 🌹"], [60, "Garden Legend 👑"]];
-  const NAMES = { chess: "Chess ♟️", ludo: "Ludo 🎲", ttt: "Tic-Tac-Toe ⭕", c4: "Connect Four 🔴" };
+  const NAMES = { chess: "Chess ♟️", ludo: "Ludo 🎲", ttt: "Tic-Tac-Toe ⭕", c4: "Connect Four 🔴", reversi: "Reversi ⚫", dots: "Dots & Boxes ▫️", pong: "Ping-Pong 🏓", rps: "Rock Paper Scissors ✊" };
   const LV = { 1: "Easy", 2: "Medium", 3: "Hard" };
   const titleFor = (pts) => TITLES.filter((t) => pts >= t[0]).pop()[1];
 
@@ -63,7 +63,7 @@
       catch (e) { box.innerHTML = `<p class="empty">Couldn't load results 🥀 If this is new, run <code>supabase/add-chat-and-results.sql</code> once (see the README).</p>`; return; }
       const S = league.summary(rows);
       const nm = (w) => U.esc(ctx.name(w));
-      const card = (w) => `<div class="lcard ${S.lead === w ? "lead" : ""}"><div class="lcrown">${S.lead === w ? "👑" : "🌸"}</div><b>${nm(w)}</b>
+      const card = (w) => `<div class="lcard p-${w} ${S.lead === w ? "lead" : ""}"><div class="lcrown">${S.lead === w ? "👑" : "🌸"}</div><b>${nm(w)}</b>
         <div class="lbig">${S[w].w}<small> wins</small></div><div class="ltitle">${U.esc(S.title[w])}</div><small>${S[w].pts} points</small></div>`;
       const per = Object.keys(S.per).map((k) => `<tr><td>${NAMES[k] || U.esc(k)}</td><td>${S.per[k].a}</td><td>${S.per[k].d}</td><td>${S.per[k].b}</td></tr>`).join("");
       const cpuRow = (w) => {

@@ -16,11 +16,11 @@ LN.views.questions = {
       d.className = "thread";
       d.innerHTML = `<p class="qtext">${U.esc(qtext)}</p>
         <div class="answers">
-          <div class="ans mine"><p class="eyebrow">${U.esc(ctx.name(ctx.who))}</p>
+          <div class="ans mine by-${ctx.who}"><p class="eyebrow">${U.esc(ctx.name(ctx.who))}</p>
             ${mine ? `<p class="pre">${U.esc(mine.text)}</p><button class="btn small ghost del">Delete my answer</button>`
                    : `<textarea rows="4" maxlength="2000" placeholder="Your answer…"></textarea><button class="btn small save">Save answer 💗</button>`}
           </div>
-          <div class="ans theirs ${mine ? "" : "locked"}"><p class="eyebrow">${U.esc(ctx.name(ctx.other))}</p>
+          <div class="ans theirs by-${ctx.other} ${mine ? "" : "locked"}"><p class="eyebrow">${U.esc(ctx.name(ctx.other))}</p>
             ${!mine ? `<p class="muted">🔒 Answer first to peek at ${U.esc(ctx.name(ctx.other))}'s answer${theirs ? " (it's waiting!)" : ""}.</p>`
               : theirs ? `<p class="pre">${U.esc(theirs.text)}</p>` : `<p class="muted">Waiting for ${U.esc(ctx.name(ctx.other))}… 🌷</p>`}
           </div></div>`;

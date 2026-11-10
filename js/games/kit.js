@@ -72,6 +72,13 @@
     else {
       S = { st: fresh(), dirty: false, save: async () => {} };
       S.reset = () => { S.st = fresh(); paint(); };
+      /* the computer's own moves don't call save(), so watch for the end of the game */
+      S.timer = setInterval(() => {
+        if (!document.body.contains(box)) return clearInterval(S.timer);
+        if (S.st.rec) return;
+        const o = kit.outcome(key, S.st);
+        if (o) { S.st.rec = 1; kit.record(key, o, opts, S.st); }
+      }, 600);
     }
     /* when a game ends, write one result row (st.rec stops it being written twice, even from the other phone) */
     const inner = S.save;

@@ -37,8 +37,8 @@
         const mine = rows.find((r) => r.qid === qid && r.author === ctx.who), theirs = rows.find((r) => r.qid === qid && r.author !== ctx.who);
         const d = document.createElement("div");
         d.innerHTML = `<div class="answers">
-          <div class="ans mine"><p class="eyebrow">${U.esc(ctx.name(ctx.who))}</p>${mine ? `<p class="pre">${U.esc(mine.text)}</p>` : `<textarea rows="4" maxlength="2000" placeholder="Your answer…"></textarea><button class="btn small save">Save answer 💗</button>`}</div>
-          <div class="ans theirs ${mine ? "" : "locked"}"><p class="eyebrow">${U.esc(ctx.name(ctx.other))}</p>${!mine ? `<p class="muted">🔒 Answer first to peek${theirs ? " (it's waiting!)" : ""}.</p>` : theirs ? `<p class="pre">${U.esc(theirs.text)}</p>` : `<p class="muted">Waiting… 🌷</p>`}</div></div>`;
+          <div class="ans mine by-${ctx.who}"><p class="eyebrow">${U.esc(ctx.name(ctx.who))}</p>${mine ? `<p class="pre">${U.esc(mine.text)}</p>` : `<textarea rows="4" maxlength="2000" placeholder="Your answer…"></textarea><button class="btn small save">Save answer 💗</button>`}</div>
+          <div class="ans theirs by-${ctx.other} ${mine ? "" : "locked"}"><p class="eyebrow">${U.esc(ctx.name(ctx.other))}</p>${!mine ? `<p class="muted">🔒 Answer first to peek${theirs ? " (it's waiting!)" : ""}.</p>` : theirs ? `<p class="pre">${U.esc(theirs.text)}</p>` : `<p class="muted">Waiting… 🌷</p>`}</div></div>`;
         const save = U.$(".save", d);
         if (save) save.onclick = async () => {
           const v = U.$("textarea", d).value.trim();
