@@ -2,12 +2,9 @@
    Network-first: when you're online you always get the newest files, so your edits show up right away.
    On the very first visit it also saves every page file, so the next visit works offline.
    (New files you add later are saved automatically the first time they load while you're online.) */
-const V = "garden-v5";
-const FILES = ["css/style.css", "index.html", "js/app.js", "js/config.js", "js/content/deeptalk.js", "js/content/games.js", "js/content/gestures.js", "js/content/letters.js", "js/content/notes.js", "js/content/questions.js", "js/core/art.js", "js/core/chat.js", "js/core/db.js", "js/core/generator.js", "js/core/gestures-ui.js", "js/core/presence.js", "js/core/util.js", "js/games/ai.js", "js/games/chess.js", "js/games/connect4.js", "js/games/deeptalk.js", "js/games/dice.js", "js/games/dots.js", "js/games/kit.js", "js/games/know.js", "js/games/ludo.js", "js/games/pong.js", "js/games/reversi.js", "js/games/rps.js", "js/games/scores.js", "js/games/tod.js", "js/games/ttt.js", "js/views/calendar.js", "js/views/chat.js", "js/views/letters.js", "js/views/lock.js", "js/views/memories.js", "js/views/play.js", "js/views/questions.js", "js/views/settings.js", "js/views/today.js", "js/views/voice.js"];
-const LIBS = [
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js",
-  "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"
-];
+const V = "garden-v6";
+const FILES = ["css/style.css", "css/ui.css", "index.html", "js/app.js", "js/config.js", "js/content/deeptalk.js", "js/content/games.js", "js/content/gestures.js", "js/content/letters.js", "js/content/letters2.js", "js/content/notes.js", "js/content/questions.js", "js/core/art.js", "js/core/chat.js", "js/core/db.js", "js/core/generator.js", "js/core/gestures-ui.js", "js/core/presence.js", "js/core/ui.js", "js/core/util.js", "js/games/ai.js", "js/games/chess.js", "js/games/connect4.js", "js/games/deeptalk.js", "js/games/dice.js", "js/games/dots.js", "js/games/kit.js", "js/games/know.js", "js/games/ludo.js", "js/games/pong.js", "js/games/reversi.js", "js/games/rps.js", "js/games/scores.js", "js/games/tod.js", "js/games/ttt.js", "js/vendor/jszip.min.js", "js/vendor/supabase.js", "js/views/calendar.js", "js/views/chat.js", "js/views/letters.js", "js/views/lock.js", "js/views/memories.js", "js/views/play.js", "js/views/questions.js", "js/views/settings.js", "js/views/today.js", "js/views/voice.js"];
+const LIBS = []; // libraries are now inside js/vendor/ (nothing is loaded from other websites)
 self.addEventListener("install", (e) => {
   e.waitUntil((async () => {
     const c = await caches.open(V);

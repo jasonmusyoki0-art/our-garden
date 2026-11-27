@@ -182,6 +182,15 @@
       const r = await run("kv", "readonly", (s) => s.get(key));
       return r ? r.value : null;
     },
+    /* every setting whose name starts with `prefix` (used so MANY devices can each have their own entry) */
+    async kvList(prefix) {
+      if (cloud) {
+        const { data, error } = await sb.from("kv").select("key,value").like("key", prefix + "%").limit(200);
+        if (error) throw error;
+        return data || [];
+      }
+      return (await run("kv", "readonly", (s) => s.getAll())).filter((r) => r.key.startsWith(prefix));
+    },
     async kvSet(key, value) {
       if (cloud) {
         const { error } = await sb.from("kv").upsert({ key, value });

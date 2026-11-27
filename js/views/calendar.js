@@ -135,7 +135,7 @@ LN.views.calendar = {
         d.className = "evitem " + (e.done ? "done" : "");
         d.innerHTML = `<button class="chk" aria-label="Mark done">${e.done ? "✓" : ""}</button><div><b>${icons[e.kind] || "💕"} ${U.esc(e.title)}</b>${e.time ? ` <small>· ${U.esc(e.time)}</small>` : ""}${e.note ? `<br><small class="muted">${U.esc(e.note)}</small>` : ""}<br><small class="muted">added by ${U.esc(ctx.name(e.author))}</small></div><button class="x" aria-label="Delete">🗑</button>`;
         U.$(".chk", d).onclick = async () => { await db.update("events", e.id, { done: !e.done }); V.render(root); };
-        U.$(".x", d).onclick = async () => { if (U.confirm("Delete this?")) { await db.remove("events", e.id); V.render(root); } };
+        U.$(".x", d).onclick = async () => { if ((await U.confirm("Delete this?", { danger: true, ok: "Yes, do it", cancel: "Keep it" }))) { await db.remove("events", e.id); V.render(root); } };
         list.appendChild(d);
       });
       const f = U.$("#evf", p);

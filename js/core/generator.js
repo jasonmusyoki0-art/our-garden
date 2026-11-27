@@ -61,27 +61,28 @@
       else if (days % 100 === 0) special = L.special.hundred;
     }
 
-    const opener = special || U.pick(r, usable(L.openers, hasDays, false));
-
-    /* your own custom "things I love about you" count double */
+    /* Everything below is picked with cycle(): a shuffled order that never repeats until the whole list has been used.
+       So with 100+ stories and 40+ of everything else, you'll go months without seeing the same letter twice. */
+    const dn = U.dayNumber(key);
+    const okS = (arr) => usable(arr, hasDays, jokes.length > 0);
+    const useStory = !special && (L.stories || []).length > 0 && dn % 3 !== 0;   // 2 days out of 3 get a whole fresh story
     const custom = (S.loveLines || []).filter(Boolean);
-    const pool = L.loveLines.concat(custom, custom);
+    const lovePool = L.loveLines.concat(custom, custom);
     const loves = [];
-    const count = 2 + (r() < 0.4 ? 1 : 0);
-    let guard = 0;
-    while (loves.length < count && guard++ < 50) {
-      const l = U.pick(r, pool);
+    const want = useStory ? 1 : 2 + (r() < 0.4 ? 1 : 0);
+    for (let i = 0; loves.length < want && i < 12; i++) {
+      const l = cycle(key, lovePool, "love" + i);
       if (!loves.includes(l)) loves.push(l);
     }
-
-    const paras = [opener, loves.join(" "), U.pick(r, L.flowerLines), U.pick(r, L.wishes)].map(f);
+    const opener = special || (useStory ? cycle(key, okS(L.stories), "story") : cycle(key, okS(L.openers), "open"));
+    const paras = (useStory ? [opener, loves.join(" "), cycle(key, L.wishes, "wish")] : [opener, loves.join(" "), cycle(key, L.flowerLines, "flr"), cycle(key, L.wishes, "wish")]).map(f);
     return {
       key,
-      greeting: (g => g.charAt(0).toUpperCase() + g.slice(1))(f(U.pick(r, L.greetings))),
+      greeting: (g => g.charAt(0).toUpperCase() + g.slice(1))(f(cycle(key, L.greetings, "greet"))),
       paras,
-      closing: f(U.pick(r, L.closings)),
+      closing: f(cycle(key, L.closings, "close")),
       signature: S.nameA,
-      ps: f(U.pick(r, usable(L.ps, hasDays, jokes.length > 0))),
+      ps: f(cycle(key, okS(L.ps), "ps")),
       flower: fl,
       paper: U.pick(r, PAPERS),
       isSpecial: !!special

@@ -87,7 +87,75 @@
       if (o && !S.st.rec) { S.st.rec = 1; kit.record(key, o, opts, S.st); }
       return inner();
     };
+    try { fx.watch(box, S, key, opts); } catch (e) { console.error(e); }
     return S;
+  };
+
+
+  /* ---------- game juice: sounds, move pops, winner celebration ---------- */
+  const fx = (kit.fx = {});
+  let ac = null;
+  const muted = () => { try { return localStorage.getItem("ln_mute") === "1"; } catch (e) { return false; } };
+  fx.muted = muted;
+  fx.setMuted = (m) => { try { localStorage.setItem("ln_mute", m ? "1" : "0"); } catch (e) {} };
+  fx.tone = (notes, o = {}) => {
+    if (muted()) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      ac = ac || new AC(); if (ac.state === "suspended") ac.resume();
+      let t = ac.currentTime + 0.01;
+      notes.forEach(([f, d]) => {
+        const osc = ac.createOscillator(), g = ac.createGain();
+        osc.type = o.type || "sine"; osc.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(o.vol || 0.12, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+        osc.connect(g); g.connect(ac.destination); osc.start(t); osc.stop(t + d + 0.02); t += d * 0.8;
+      });
+    } catch (e) {}
+  };
+  fx.pop = () => fx.tone([[620, 0.09], [820, 0.09]], { vol: 0.08 });
+  fx.win = () => fx.tone([[523, 0.14], [659, 0.14], [784, 0.14], [1047, 0.34]], { vol: 0.13 });
+  fx.lose = () => fx.tone([[392, 0.2], [349, 0.2], [330, 0.34]], { vol: 0.09, type: "triangle" });
+  fx.draw = () => fx.tone([[440, 0.16], [440, 0.22]], { vol: 0.08 });
+
+  /* a pretty "you won" card with confetti; mine = did I win? */
+  fx.celebrate = (o, opts = {}) => {
+    try {
+      const me = LN.ctx.who, cpu = !!opts.cpu;
+      const won = o === "draw" ? null : cpu ? o === "a" : o === me;
+      const name = o === "draw" ? "" : cpu ? (o === "a" ? LN.ctx.name(me) : "The computer") : LN.ctx.name(o);
+      if (won === true) fx.win(); else if (won === false) fx.lose(); else fx.draw();
+      const R = LN.art && LN.art.burst;
+      if (R && won !== false) for (let i = 0; i < 4; i++) setTimeout(() => R(innerWidth * (0.2 + 0.2 * i), innerHeight * 0.4, ["🌸", "💜", "✨", "🌷", "💗", "🎉"], 14), i * 220);
+      const t = o === "draw" ? ["🤝", "It's a draw!", "Evenly matched. That's love 💞"]
+        : won ? ["🏆", cpu ? "You won!" : `${name} wins!`, "Beautifully played 🌸"]
+        : cpu ? ["🤖", "The computer won", "Good game! Try again, you've got this 💪"]
+        : ["💗", `${name} wins!`, "Good game, so close 💗"];
+      LN.ui.modal({ icon: t[0], title: t[1], text: t[2], tone: "win", buttons: [{ label: "Lovely 💗", value: true, kind: "primary" }], dismiss: true });
+    } catch (e) { console.error(e); }
+  };
+
+  /* watch a game board: cells that changed get a little pop + sound; a finished game is celebrated once */
+  fx.watch = (box, S, key, opts) => {
+    const SEL = ".c4cell,.rvc,.sq,.tc,.uc,.lt,.die";
+    let prev = null, queued = false, shown = !!kit.outcome(key, S.st);
+    const snap = () => Array.from(box.querySelectorAll(SEL), (n) => n.innerHTML);
+    const check = () => {
+      queued = false;
+      if (!document.body.contains(box)) return mo.disconnect();
+      const cells = box.querySelectorAll(SEL), cur = snap();
+      if (prev && prev.length === cur.length) {
+        let n = 0;
+        cur.forEach((h, i) => { if (h !== prev[i]) { n++; cells[i].classList.remove("pop"); void cells[i].offsetWidth; cells[i].classList.add("pop"); } });
+        if (n && n < 8) fx.pop();
+      }
+      prev = cur;
+      const o = kit.outcome(key, S.st);
+      if (o && !shown) { shown = true; setTimeout(() => fx.celebrate(o, opts), 650); }
+      if (!o) shown = false;
+    };
+    const mo = new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(check); } });
+    mo.observe(box, { childList: true, subtree: true });
+    prev = snap();
   };
 
   /* who won? returns "a" | "b" | "draw", or null while the game is still going */

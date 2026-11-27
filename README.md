@@ -13,17 +13,20 @@ A pink-and-white (with a whisper of purple) website for just the two of you:
 - 💬 **Chat**: its own page, plus a chat bubble on every page. Reply (drag a message right), react with emojis, ✓✓ Seen, and an online / last seen status at the top of every page
 - 🏆 **Love League**: scoreboard, head-to-head per game, record against the computer, and recent results
 - 📸 **Photos & videos**, albums, a **daily or weekly Memory Drop**, and **download** of single files or whole albums as a .zip
+- ✨ **Overhauled look & feel (v6)**: one menu button that blooms open with a buttery animation; a flower animation between pages; after the code, an animated welcome that writes *Jason* and *Linet* by hand; pretty in-site pop-ups (no browser dialogs); sounds, pops, confetti and a winner card in every game (🔊 button to mute). **110+ different daily letters** that take turns before repeating. Jason = plum 💜, Linet = pink & white 🌸 everywhere (Ludo, chess, chat).
+- 📱 **Any number of devices**: Linet (or you) can log in on as many phones/computers as you like. The libraries the site needs now live inside the project (`js/vendor/`), so nothing is fetched from other websites. A new device asks "Who's here?" once.
+
 
 It is a *static* website (no server to maintain) hosted free on **GitHub Pages**. Shared storage between your two phones uses a free **Supabase** project. Until you connect Supabase it runs in **Local mode** (one device only), so you can try everything immediately.
 
 ---
 
-## ⬆️ Already have the site live? Update it in 4 steps
+## ⬆️ Already have the site live? Update it in 4 steps (v6 overhaul)
 
 1. Unzip this zip and copy everything into your project folder, choosing **Replace**. **Do NOT replace your own `js/config.js`** (it holds your Supabase keys, your 8-digit `codeLength` and your email). If you did, put your keys back.
 2. In Supabase → **SQL Editor**, run these once each (skip any you already ran): `supabase/add-chat-and-results.sql`, then `supabase/add-chat-features.sql`.
 3. In the VS Code terminal: `git add .` then `git commit -m "update"` then `git push`.
-4. Wait a minute, then refresh both phones (close the tab and reopen it).
+4. Wait a minute, then refresh both phones. If an old look sticks, do a hard refresh (Ctrl+Shift+R on a computer; on a phone close the tab and reopen it).
 
 Brand new to this? Ignore the box above and start at Step 1 below.
 
@@ -169,6 +172,7 @@ Notes: "online" means the app is open and visible on her phone. If her phone sle
 
 ## Troubleshooting
 
+- **Errors on a new computer**: do a hard refresh (Ctrl+Shift+R) once so it loads the new files; make sure the SQL files in the update box were run once; then try again. If something still shows, take a screenshot of the message and send it to your developer-friend (or to Claude), the exact words matter.
 - **"Can't reach the garden"**: no internet, or the Supabase project is paused (free projects pause after about a week unused: open supabase.com → your project → Restore). Your data is safe. You can still tap "Play the computer".
 - **She shows as offline but she's here**: she needs the site open and on screen. Ask her to refresh once. Both phones need internet.
 

@@ -57,10 +57,10 @@ LN.views.settings = {
     };
     const chg = U.$("#chg", root);
     if (chg) chg.onclick = async () => {
-      const old = prompt("Current code:");
+      const old = await LN.ui.prompt("Enter your current code", { type: "password", inputmode: "numeric", max: 12, ok: "Next" });
       if (old === null) return;
       if ((await db.login(old)) !== "ok") return U.toast("That's not the current code");
-      const nw = prompt(`New ${LN.config.codeLength}-digit code:`);
+      const nw = await LN.ui.prompt(`Choose a new ${LN.config.codeLength}-digit code`, { type: "password", inputmode: "numeric", max: 12, ok: "Change code" });
       if (!nw || !new RegExp(`^\\d{${LN.config.codeLength}}$`).test(nw)) return U.toast(`Needs exactly ${LN.config.codeLength} digits`);
       await db.setLocalCode(nw);
       U.toast("Code changed 🔐");

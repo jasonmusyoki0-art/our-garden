@@ -33,7 +33,7 @@ LN.views.questions = {
         catch (e) { save.disabled = false; U.toast("Couldn't save. Try again."); }
       };
       const del = U.$(".del", d);
-      if (del) del.onclick = async () => { if (U.confirm("Delete your answer?")) { await db.remove("answers", mine.id); LN.views.questions.render(root); } };
+      if (del) del.onclick = async () => { if ((await U.confirm("Delete your answer?", { danger: true, ok: "Yes, do it", cancel: "Keep it" }))) { await db.remove("answers", mine.id); LN.views.questions.render(root); } };
       return d;
     };
 

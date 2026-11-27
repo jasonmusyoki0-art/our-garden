@@ -12,7 +12,6 @@
     ["today", "🌸", "Today"], ["chat", "💬", "Chat"], ["letters", "💌", "Letters"], ["memories", "📸", "Memories"], ["play", "🎮", "Play"],
     ["calendar", "📅", "Calendar"], ["questions", "💭", "Questions"], ["voice", "🎙️", "Voice"], ["settings", "🤍", "Us"]
   ];
-  const MAIN = 5; // the first 5 are always visible, the rest live under "More"
 
   LN.lockNow = async () => { await LN.db.logout(); location.reload(); };
 
@@ -31,13 +30,15 @@
     const app = U.$("#app");
     app.innerHTML = `
       <header class="top"><a href="#today" class="brand script">${U.esc(C.appTitle)} <span>🌸</span></a><span class="pstat" id="pstat" hidden></span>
-        <nav class="nav" id="nav">${NAV.slice(0, MAIN).map(([k, e, n]) => `<a href="#${k}" data-k="${k}"><span class="ni">${e}</span><span class="nl">${n}</span></a>`).join("")}
-          <button class="morebtn" id="more" aria-expanded="false"><span class="ni">✨</span><span class="nl">More</span></button></nav>
-        <div class="moresheet" id="moresheet" hidden>${NAV.slice(MAIN).map(([k, e, n]) => `<a href="#${k}" data-k="${k}"><span class="ni">${e}</span> ${n}</a>`).join("")}</div>
+        <button class="menubtn" id="menubtn" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span class="menulbl" id="menulbl">Today</span><span class="bars"><i></i><i></i><i></i></span><span class="nbadge" id="menubadge" hidden></span></button>
         <button class="lockbtn" id="lockbtn" aria-label="Lock">🔒</button></header>
+      <div class="menu" id="menu" hidden>
+        <div class="menuback" id="menuback"></div>
+        <nav class="menupanel" aria-label="Pages">${NAV.map(([k, e, n], i) => `<a href="#${k}" data-k="${k}" class="mi" style="--i:${i}"><span class="mie">${e}</span><span class="mil">${n}</span>${k === "chat" ? '<span class="nbadge" id="chatbadge" hidden></span>' : ""}</a>`).join("")}</nav>
+      </div>
       <main id="view" tabindex="-1"></main>
       <footer class="foot">made with love 🤍</footer>`;
-    U.$("#lockbtn").onclick = LN.lockNow;
+    U.$("#lockbtn").onclick = async () => { if (await LN.ui.confirm("Lock the garden?", { ok: "Lock it 🔒", cancel: "Stay" })) LN.lockNow(); };
     /* online / last seen, on every page */
     const ps = U.$("#pstat");
     if (LN.presence.enabled()) {
@@ -50,31 +51,60 @@
     }
     LN.chat.dock();
     /* red dot on Chat when she's written something you haven't seen */
-    const cl = U.$('#nav a[data-k="chat"]');
-    if (cl) { const bd = document.createElement("span"); bd.className = "nbadge"; bd.hidden = true; cl.appendChild(bd); LN.chat.on((c) => { bd.hidden = !c.unread; bd.textContent = c.unread > 9 ? "9+" : c.unread; }); }
-    const more = U.$("#more"), sheet = U.$("#moresheet");
-    more.onclick = (e) => { e.stopPropagation(); sheet.hidden = !sheet.hidden; more.setAttribute("aria-expanded", String(!sheet.hidden)); };
-    document.addEventListener("click", () => { sheet.hidden = true; });
+    LN.chat.on((c) => {
+      const b = U.$("#chatbadge"), mb = U.$("#menubadge"), t = c.unread > 9 ? "9+" : c.unread;
+      if (b) { b.hidden = !c.unread; b.textContent = t; }
+      if (mb) { mb.hidden = !c.unread; mb.textContent = t; }
+    });
+    /* the one menu button: everything unfolds from it */
+    const menu = U.$("#menu"), btn = U.$("#menubtn");
+    let closing = 0;
+    const setMenu = (open) => {
+      clearTimeout(closing);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      document.body.classList.toggle("menu-open", open);
+      if (open) { menu.hidden = false; void menu.offsetWidth; menu.classList.add("open"); const on = U.$(".mi.on", menu) || U.$(".mi", menu); setTimeout(() => on && on.focus({ preventScroll: true }), 120); }
+      else { menu.classList.remove("open"); closing = setTimeout(() => { menu.hidden = true; }, 420); }
+    };
+    LN.closeMenu = () => setMenu(false);
+    btn.onclick = (e) => { e.stopPropagation(); setMenu(menu.hidden || !menu.classList.contains("open")); };
+    U.$("#menuback").onclick = () => setMenu(false);
+    U.$$(".mi", menu).forEach((a) => a.addEventListener("click", () => {
+      setMenu(false);
+      if (a.dataset.k === currentKey) { e2(); }
+    }));
+    const e2 = () => {}; // tapping the page you're already on just closes the menu
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { setMenu(false); btn.focus(); } });
   }
-  LN.refreshShell = () => { const k = (location.hash || "#today").slice(1); route(k); };
+  LN.refreshShell = () => { const k = (location.hash || "#today").slice(1); route(k, true); };
 
-  async function route(forced) {
+  let currentKey = "", routing = false, queued = false;
+  async function route(forced, noFx) {
+    if (routing) { queued = true; return; }
+    routing = true;
     const k = forced || (location.hash || "#today").slice(1);
-    const view = LN.views[NAV.find((n) => n[0] === k) ? k : "today"];
     const key = NAV.find((n) => n[0] === k) ? k : "today";
-    document.body.classList.toggle("on-chat", key === "chat");
-    U.$$("#nav a, #moresheet a").forEach((a) => a.classList.toggle("on", a.dataset.k === key));
-    U.$("#more").classList.toggle("on", NAV.findIndex((n) => n[0] === key) >= MAIN);
-    U.$("#moresheet").hidden = true;
+    const view = LN.views[key];
     const root = U.$("#view");
-    // each day gets its own soft pink mood
-    const mood = LN.gen.moodFor(U.dateKey());
-    document.documentElement.style.setProperty("--accent", mood.a);
-    document.documentElement.style.setProperty("--accent-soft", mood.s);
-    if (key !== "play") { LN.presence.setGame(""); LN.views.play.game = null; } // Play always opens on the games menu
-    root.innerHTML = `<p class="loading">🌸</p>`;
-    try { await view.render(root); } catch (e) { console.error(e); root.innerHTML = `<p class="empty">Something wandered off 🥀 Try refreshing.</p>`; }
-    window.scrollTo(0, 0);
+    const draw = async () => {
+      currentKey = key;
+      document.body.classList.toggle("on-chat", key === "chat");
+      U.$$("#menu .mi").forEach((a) => a.classList.toggle("on", a.dataset.k === key));
+      const lbl = U.$("#menulbl"); if (lbl) lbl.textContent = (NAV.find((n) => n[0] === key) || [])[2] || "";
+      // each day gets its own soft pink mood
+      const mood = LN.gen.moodFor(U.dateKey());
+      document.documentElement.style.setProperty("--accent", mood.a);
+      document.documentElement.style.setProperty("--accent-soft", mood.s);
+      if (key !== "play") { LN.presence.setGame(""); LN.views.play.game = null; } // Play always opens on the games menu
+      root.innerHTML = `<p class="loading">🌸</p>`;
+      try { await view.render(root); } catch (e) { console.error(e); root.innerHTML = `<div class="card center"><p class="big-text">Something wandered off 🥀</p><p class="muted">Pull down or press refresh and it will bloom again.</p></div>`; }
+      window.scrollTo(0, 0);
+    };
+    try {
+      if (noFx || !currentKey) await draw(); else await LN.ui.transition(draw);
+    } finally { routing = false; }
+    if (queued) { queued = false; route(); }
   }
 
   function onboarding() {
@@ -166,7 +196,14 @@
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(() => {});
     LN.art.petals();
     LN.art.garlands();
-    if (!(await LN.db.hasSession().catch(() => false))) await LN.views.lock.show();
+    /* quiet safety net: a hiccup anywhere shows one gentle note instead of a pile of errors */
+    let lastHiccup = 0;
+    const hiccup = (err) => { console.error(err); if (Date.now() - lastHiccup > 30000 && LN.todayKey) { lastHiccup = Date.now(); U.toast("Something hiccuped 🥀 If it keeps happening, refresh the page.", 4200); } };
+    addEventListener("error", (e) => { if (e.filename && e.filename.startsWith(location.origin)) hiccup(e.error || e.message); });
+    addEventListener("unhandledrejection", (e) => hiccup(e.reason));
+
+    let justUnlocked = false;
+    if (!(await LN.db.hasSession().catch(() => false))) { await LN.views.lock.show(); justUnlocked = true; }
     if (LN.offlineOnly) return offlineBoot();
 
     let saved = null, loaded = false;
@@ -187,21 +224,27 @@
     }
     if (saved) Object.assign(LN.gen.settings, saved);
     else await onboarding();
+    const S = LN.gen.settings;
     if (!ctx.who) {
       // someone logged in on a new device: ask who they are
       ctx.who = "a";
-      const S = LN.gen.settings;
-      const pick = confirm(`Is this ${S.nameB}'s phone?\n\nOK = I'm ${S.nameB}\nCancel = I'm ${S.nameA}`);
-      LN.setWho(pick ? "b" : "a");
+      const pick = await LN.ui.choose("Who's here? 🌸", "So the garden knows whose phone or computer this is.", [
+        { label: S.nameA, sub: "that's me", value: "a", cls: "him", icon: "💜" },
+        { label: S.nameB, sub: "that's me", value: "b", cls: "her", icon: "🌸" }
+      ]);
+      LN.setWho(pick);
     }
+    const intro = justUnlocked ? LN.ui.intro(S.nameA, S.nameB) : null;   // names written by hand, right after the secret code
     shell();
     idleLock();
     clockWatch();
     syncWatch();
     LN.presence.start();
+    try { LN.ui.ambient(S.nameA, S.nameB); } catch (e) {}
     LN.chat.watch();
+    await route(undefined, true);                                       // the home page is ready behind the welcome
     addEventListener("hashchange", () => route());
-    route();
+    if (intro) await intro;
   }
 
   document.addEventListener("DOMContentLoaded", boot);

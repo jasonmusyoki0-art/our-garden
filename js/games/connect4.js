@@ -60,7 +60,7 @@
           if (n.winner && n.winner !== "draw") A.burst(innerWidth / 2, 260, ["💜", "🌸", "✨"], 14);
           paint(); S.save();
         }));
-        U.$("#newg", box).onclick = () => { if (U.confirm("Start a new game?")) S.reset(); };
+        U.$("#newg", box).onclick = async () => { if ((await U.confirm("Start a new game?", { ok: "Start fresh ✨", cancel: "Keep playing" }))) S.reset(); };
         think();
       }
       function think() {

@@ -85,7 +85,7 @@ LN.views.letters = {
           d.innerHTML = `<button class="owbtn"><span class="owe">${o.emoji}</span><b>${U.esc(o.title)}</b></button><div class="owbody" hidden><p>${U.esc(o.body)}</p>${o.mine ? '<button class="btn small ghost del">Delete</button>' : ""}</div>`;
           U.$(".owbtn", d).onclick = () => { const b = U.$(".owbody", d); b.hidden = !b.hidden; d.classList.toggle("open", !b.hidden); };
           const del = U.$(".del", d);
-          if (del) del.onclick = async () => { if (U.confirm("Delete this envelope?")) { await db.remove("letters", o.id); LN.views.letters.render(root); } };
+          if (del) del.onclick = async () => { if ((await U.confirm("Delete this envelope?", { danger: true, ok: "Yes, do it", cancel: "Keep it" }))) { await db.remove("letters", o.id); LN.views.letters.render(root); } };
           grid.appendChild(d);
         });
         U.$("#owform", box).onsubmit = async (e) => {
@@ -109,7 +109,7 @@ LN.views.letters = {
       if (l.author === LN.ctx.who) {
         const b = document.createElement("button");
         b.className = "btn small ghost"; b.textContent = "Delete";
-        b.onclick = async () => { if (U.confirm("Delete this letter?")) { await db.remove("letters", l.id); LN.views.letters.render(root); } };
+        b.onclick = async () => { if ((await U.confirm("Delete this letter?", { danger: true, ok: "Yes, do it", cancel: "Keep it" }))) { await db.remove("letters", l.id); LN.views.letters.render(root); } };
         d.appendChild(b);
       }
       return d;

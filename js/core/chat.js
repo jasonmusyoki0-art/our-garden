@@ -150,12 +150,12 @@
       const mine = m.author === LN.ctx.who;
       menu.innerHTML = `<div class="cemo">${REACT.map((e) => `<button type="button" data-e="${e}">${e}</button>`).join("")}</div>
         <div class="cact"><button type="button" data-a="reply">↩ Reply</button><button type="button" data-a="copy">⧉ Copy</button>${mine ? '<button type="button" data-a="del">🗑 Delete</button>' : ""}</div>`;
-      menu.onclick = (e) => {
+      menu.onclick = async (e) => {
         const b = e.target.closest("button"); if (!b) return;
         if (b.dataset.e) C.react(m, b.dataset.e);
         else if (b.dataset.a === "reply") { C.reply(m); setTimeout(() => input.focus(), 30); }
         else if (b.dataset.a === "copy") { try { navigator.clipboard.writeText(m.text); U.toast("Copied"); } catch (er) {} }
-        else if (b.dataset.a === "del" && U.confirm("Delete this message?")) C.remove(m);
+        else if (b.dataset.a === "del" && (await U.confirm("Delete this message?", { danger: true, ok: "Yes, do it", cancel: "Keep it" }))) C.remove(m);
         closeMenu();
       };
       bubble.appendChild(menu);

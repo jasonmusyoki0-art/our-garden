@@ -1,11 +1,11 @@
-/* 🎲 Ludo for two (him = pink, her = purple). Engine first, screen below. */
+/* 🎲 Ludo for two (him = plum purple, her = pink). Engine first, screen below. */
 (function () {
   const LN = (window.LN = window.LN || {});
   LN.engines = LN.engines || {};
   LN.games = LN.games || {};
   const E = (LN.engines.ludo = {});
 
-  /* The 52 squares of the main loop on a 15x15 grid, clockwise, starting at pink's entry square. */
+  /* The 52 squares of the main loop on a 15x15 grid, clockwise, starting at Jason's (purple) entry square. */
   const T = [];
   const add = (r, c) => T.push([r, c]);
   for (let c = 1; c <= 5; c++) add(6, c);
@@ -76,7 +76,7 @@
   LN.games.ludo = {
     icon: "🎲", name: "Ludo", desc: "Race your four hearts home. Capture and be captured!",
     tut: [
-      { icon: "🎯", title: "The goal", text: "Get all 4 of your hearts around the board and into the centre home. You are pink if you're him, purple if you're her." },
+      { icon: "🎯", title: "The goal", text: "Get all 4 of your hearts around the board and into the centre home. Jason is the plum-purple 💜 hearts and Linet is the pink 💗 hearts." },
       { icon: "🎲", title: "Rolling", text: "Tap Roll on your turn. You need a 6 to bring a heart out of your corner. Then tap a glowing heart to move it by the number rolled." },
       { icon: "⭐", title: "Rolling again", text: "You roll again after a 6, after capturing, and when a heart reaches home. Landing exactly on another player's heart sends it back to their corner." },
       { icon: "🛡️", title: "Safe squares", text: "Squares marked ★ are safe: nobody can be captured there. Your own colored entry square is safe too." },
@@ -103,10 +103,10 @@
         for (let r = 0; r < 15; r++) for (let c = 0; c < 15; c++) {
           const cell = board[r][c], ti = TRK.get(r + "," + c);
           const star = ti !== undefined && E.SAFE.has(ti) && !cell.kids.length ? "★" : "";
-          html += `<div class="lc2 ${cell.cls}">${star}${cell.kids.map((k) => `<button class="lt lt-${k.w} ${k.can ? "can" : ""} n${cell.kids.length}" data-w="${k.w}" data-i="${k.i}" ${k.can ? "" : "tabindex=-1"} aria-label="${k.w === "a" ? "pink" : "purple"} heart">${k.w === "a" ? "💗" : "💜"}</button>`).join("")}</div>`;
+          html += `<div class="lc2 ${cell.cls}">${star}${cell.kids.map((k) => `<button class="lt lt-${k.w} ${k.can ? "can" : ""} n${cell.kids.length}" data-w="${k.w}" data-i="${k.i}" ${k.can ? "" : "tabindex=-1"} aria-label="${k.w === "a" ? "purple" : "pink"} heart">${k.w === "a" ? "💜" : "💗"}</button>`).join("")}</div>`;
         }
         const msg = st.winner ? `${U.esc(nm(st.winner))} wins! 🏆🎉`
-          : `${mine ? "Your turn" : `Waiting for ${U.esc(nm(who))}…`} ${who === "a" ? "💗" : "💜"}`;
+          : `${mine ? "Your turn" : `Waiting for ${U.esc(nm(who))}…`} ${who === "a" ? "💜" : "💗"}`;
         const last = st.last ? ({ captured: "captured a heart! 💥", home: "got a heart home! 🏠", stuck: "had no move 🙈", "": "moved" }[st.last.note]) : "";
         box.innerHTML = `<p class="big-text center" aria-live="polite">${msg}</p>
           <div class="ludo">${html}</div>
@@ -117,7 +117,7 @@
         const rb = U.$("#roll", box);
         if (rb) rb.onclick = roll;
         U.$$(".lt.can", box).forEach((b) => (b.onclick = () => move(+b.dataset.i)));
-        U.$("#newg", box).onclick = () => { if (U.confirm("Start a new game?")) S.reset(); };
+        U.$("#newg", box).onclick = async () => { if ((await U.confirm("Start a new game?", { ok: "Start fresh ✨", cancel: "Keep playing" }))) S.reset(); };
         think();
       }
       function think() {

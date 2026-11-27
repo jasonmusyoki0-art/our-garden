@@ -60,7 +60,7 @@
           paint(); await save(); saving = false;
         }));
         U.$("#newg", box).onclick = async () => {
-          if (!over && !U.confirm("Start a new match?")) return;
+          if (!over && !(await U.confirm("Start a new match?", { ok: "Start fresh ✨", cancel: "Keep playing" }))) return;
           mine = { g: Date.now(), picks: [] }; if (cpu) theirs = { g: mine.g, picks: [] };
           recorded = false; paint(); await save();
         };

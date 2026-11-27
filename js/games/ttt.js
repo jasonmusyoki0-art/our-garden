@@ -111,10 +111,10 @@
           <p class="big-text center" aria-live="polite">${msg}</p>${body}
           <div class="row end"><button class="btn small ghost" id="newg">New game</button></div>
           <p class="muted center">${U.esc(nm("a"))} ${MK.a} · ${U.esc(nm("b"))} ${MK.b}${local ? " · local mode: pass the phone" : ""}</p>`;
-        U.$$(".tabs button", box).forEach((b) => (b.onclick = () => {
+        U.$$(".tabs button", box).forEach((b) => (b.onclick = async () => {
           if (b.dataset.m === mode) return;
           const inProg = (S.st.board && S.st.board.some(Boolean) || S.st.sub && S.st.sub.some((x) => x.some(Boolean))) && !S.st.winner;
-          if (inProg && !U.confirm("Switch board? This ends the current game.")) return;
+          if (inProg && !(await U.confirm("Switch board? This ends the current game.", { ok: "Switch", cancel: "Stay" }))) return;
           mode = b.dataset.m; S.st = E.fresh(mode); paint(); S.save();
         }));
         U.$$(".tc", box).forEach((b) => (b.onclick = () => {
@@ -127,7 +127,7 @@
           const n = E.placeU(S.st, +b.dataset.b, +b.dataset.c);
           if (n) { S.st = n; if (n.winner && n.winner !== "draw") A.burst(innerWidth / 2, 260, ["💜", "🌸", "✨"], 14); paint(); S.save(); }
         }));
-        U.$("#newg", box).onclick = () => { if (U.confirm("Start a new game?")) { S.st = E.fresh(mode); paint(); S.save(); } };
+        U.$("#newg", box).onclick = async () => { if ((await U.confirm("Start a new game?", { ok: "Start fresh ✨", cancel: "Keep playing" }))) { S.st = E.fresh(mode); paint(); S.save(); } };
         think();
       }
       function think() {

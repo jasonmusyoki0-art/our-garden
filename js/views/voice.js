@@ -151,7 +151,7 @@ LN.voice = {
       };
       const del = U.$(".del", c);
       if (del) del.onclick = async () => {
-        if (!U.confirm("Delete this voice note?")) return;
+        if (!(await U.confirm("Delete this voice note?", { danger: true, ok: "Yes, do it", cancel: "Keep it" }))) return;
         await db.removeFile(n.path); await db.remove("media", n.id);
         V.render(root);
       };

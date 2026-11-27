@@ -103,7 +103,7 @@ LN.views.memories = {
         U.$("#lbdl", lb).onclick = async () => U.download(await db.fileBlob(m.path), m.path.endsWith(".jpg") && !/\.jpe?g$/i.test(m.name) ? m.name.replace(/\.[^.]+$/, "") + ".jpg" : m.name);
         const d = U.$("#lbdel", lb);
         if (d) d.onclick = async () => {
-          if (!U.confirm("Delete this memory forever?")) return;
+          if (!(await U.confirm("Delete this memory forever?", { danger: true, ok: "Yes, do it", cancel: "Keep it" }))) return;
           await db.removeFile(m.path); await db.removeFile(m.thumb_path); await db.remove("media", m.id);
           close(); V.render(root);
         };
@@ -155,7 +155,7 @@ LN.views.memories = {
       U.$("#zip", root).onclick = () => zipDownload(list, alb.name);
       const da = U.$("#delalb", root);
       if (da) da.onclick = async () => {
-        if (!U.confirm("Delete this album? Its photos and videos stay in 'Everything'.")) return;
+        if (!(await U.confirm("Delete this album? Its photos and videos stay in 'Everything'.", { danger: true, ok: "Yes, do it", cancel: "Keep it" }))) return;
         for (const m of list) await db.update("media", m.id, { album_id: null });
         await db.remove("albums", alb.id); V.open = null; V.render(root);
       };
@@ -185,9 +185,9 @@ LN.views.memories = {
       tile("all", "🌸", "Everything", media);
       albums.forEach((a) => tile(a.id, a.emoji, a.name, inAlbum(a.id)));
       U.$("#newalb", root).onclick = async () => {
-        const name = (prompt("Name your album (e.g. Our First Trip)") || "").trim();
+        const name = ((await LN.ui.prompt("Name your album", { placeholder: "e.g. Our First Trip", max: 50, ok: "Next" })) || "").trim();
         if (!name) return;
-        const emoji = (prompt("Pick an emoji for it", "💗") || "💗").trim().slice(0, 4);
+        const emoji = ((await LN.ui.prompt("Pick an emoji for it", { value: "💗", max: 4, ok: "Create album" })) || "💗").trim().slice(0, 4);
         await db.add("albums", { name: name.slice(0, 50), emoji, auto: "", author: ctx.who });
         V.render(root);
       };

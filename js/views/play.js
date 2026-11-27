@@ -150,7 +150,12 @@ LN.views.play = {
       const how = document.createElement("button");
       how.className = "btn small ghost"; how.id = "how"; how.textContent = "📖 How to play";
       how.onclick = () => LN.kit.tutorial(game, g.tut, true);
-      U.$("#gback", root).after(" ", how);
+      const snd = document.createElement("button");
+      snd.className = "btn small ghost"; snd.id = "snd";
+      const sl = () => (snd.textContent = LN.kit.fx.muted() ? "🔇 Sound off" : "🔊 Sound on");
+      snd.onclick = () => { LN.kit.fx.setMuted(!LN.kit.fx.muted()); sl(); LN.kit.fx.pop(); };
+      sl();
+      U.$("#gback", root).after(" ", how, " ", snd);
       const alive = () => V.game === game && document.body.contains(body);
       await LN.kit.tutorial(game, g.tut);
       if (!alive()) return;

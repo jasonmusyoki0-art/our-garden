@@ -142,7 +142,7 @@
   };
   const glyph = (p) => {
     const white = p[0] === "w";
-    return `<svg viewBox="0 0 45 45" class="pcs" aria-hidden="true" fill="${white ? "#fff" : "#5b2a73"}" stroke="${white ? "#9c3d6b" : "#2d1240"}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">${SHAPES[p[1]]}</svg>`;
+    return `<svg viewBox="0 0 45 45" class="pcs ${white ? "pp" : "pk"}" aria-hidden="true" fill="${white ? "#7a46b5" : "#fff4f9"}" stroke="${white ? "#2d1240" : "#c04476"}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">${SHAPES[p[1]]}</svg>`;
   };
 
   LN.games.chess = {
@@ -187,11 +187,11 @@
           <div class="chessboard">${cells}</div>
           ${promo ? `<div class="promo">Promote to: ${["Q", "R", "B", "N"].map((x) => `<button class="btn small ghost" data-p="${x}">${glyph(st.t + x)}</button>`).join("")}</div>` : ""}
           <div class="row wrap center-row"><button class="btn small ghost" id="resign" ${done ? "disabled" : ""}>🏳️ Resign</button><button class="btn small ghost" id="newg">New game</button></div>
-          <p class="muted center">${U.esc(wname)} = pink-white · ${U.esc(bname)} = plum${local ? " · local mode: pass the phone" : ""}</p>`;
+          <p class="muted center">${U.esc(wname)} = plum purple 💜 · ${U.esc(bname)} = pink &amp; white 🌸${local ? " · local mode: pass the phone" : ""}</p>`;
         U.$$(".sq", box).forEach((b) => (b.onclick = () => click(+b.dataset.i, res, mine, done)));
         U.$$("[data-p]", box).forEach((b) => (b.onclick = () => { const m = promo.find((x) => x.pr === b.dataset.p); promo = null; play(m); }));
-        U.$("#newg", box).onclick = () => { if (U.confirm("Start a new game?")) { sel = -1; promo = null; S.reset(); } };
-        U.$("#resign", box).onclick = () => { if (U.confirm("Resign this game?")) { S.st.over = "resign-" + (local ? st.t : myCol); paint(); S.save(); } };
+        U.$("#newg", box).onclick = async () => { if ((await U.confirm("Start a new game?", { ok: "Start fresh ✨", cancel: "Keep playing" }))) { sel = -1; promo = null; S.reset(); } };
+        U.$("#resign", box).onclick = async () => { if ((await U.confirm("Resign this game?", { danger: true, ok: "Yes, do it", cancel: "Keep it" }))) { S.st.over = "resign-" + (local ? st.t : myCol); paint(); S.save(); } };
         think(res);
       }
       function click(i, res, mine, done) {
